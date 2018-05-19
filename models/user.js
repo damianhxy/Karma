@@ -18,7 +18,11 @@ exports.add = function(req, username, password) {
         .then(function(hash) {
             return users.insertAsync({
                 "username": username,
-                "hash": hash
+                "hash": hash,
+                "karma": 0,
+                "name": req.body.name,
+                "subjects": [],
+                "socket_id": ""
             });
         });
     });
@@ -38,4 +42,12 @@ exports.authenticate = function(username, password) {
 
 exports.get = function(id) {
     return users.findOneAsync({ _id: id });
+};
+
+exports.setSocketID = function(id, socketid) {
+    return users.findOneAsync({ _id: id })
+    .then(function(user) {
+        user.socket_id = socketid;
+        users.updateAsync({ _id: id }, { $set: user });
+    });
 };

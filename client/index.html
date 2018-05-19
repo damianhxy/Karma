@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>Karma</title>
+    <meta name="description" content="Karma">
+    
+    <meta name="theme-color" content="#9C27B0">
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Karma">
+  </head>
+  <body>
+    <div id="login-container">
+      <!-- Placeholder for app icon -->
+      <img src="placeholder.svg" width="240" height="240">
+      <form action="users/signin" method="post">
+        <label for="username">Username:</label>
+        <input id="username" name="username">
+        <br>
+        <label for="password">Password:</label>
+        <input id="password" name="password">
+        <br>
+        <input type="submit" value="Login">
+        <button id="register">Register</button>
+      </form>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+  </body>
+</html>

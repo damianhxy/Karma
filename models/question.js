@@ -25,8 +25,10 @@ exports.accept = function(questionid, askee) {
     });
 };
 
-exports.getPending = function() {
-    return questions.findAsync({ state: "pending" });
+exports.getPending = function(askee) {
+    return questions.findAsync({ $where: function() {
+        return this.state === "pending" || (this.state === "open" && this.askee === askee);
+    }});
 }
 
 exports.resolve = function(questionid, success) {

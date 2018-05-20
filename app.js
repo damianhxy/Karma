@@ -26,40 +26,40 @@ io.on("connection", function(socket) {
     socket.on("create", function(data) {
         question.create(data.userid, photo)
         .then(function() {
-            return question.getPending();
+            return question.getPending(data.askee);
         })
         .then(function(questions) {
-            io.emit(questions);
+            io.emit("created", questions);
         });
     });
 
     socket.on("answer", function(data) {
         question.accept(data.questionid, data.askee)
         .then(function() {
-            return question.getPending();
+            return question.getPending(data.askee);
         })
         .then(function(questions) {
-            io.emit(questions);
+            io.emit("answered", questions);
         });
     });
 
     socket.on("message", function(data) {
         question.addMessage(data.questionid, data.userid, data.message)
         .then(function() {
-            return question.getPending();
+            return question.getPending(data.askee);
         })
         .then(function(questions) {
-            io.emit(questions);
+            io.emit("messaged", questions);
         });
     });
 
     socket.on("resolve", function(data) {
         question.resolve(data.questionid, data.success)
         .then(function() {
-            return question.getPending();
+            return question.getPending(data.askee);
         })
         .then(function(questions) {
-            io.emit(questions);
+            io.emit("resolved", questions);
         });
     });
 });

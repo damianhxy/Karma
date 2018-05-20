@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
 	<title>karma</title>
 	<link rel="stylesheet" href="style.css">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=no">
@@ -16,12 +17,7 @@
 			<button>&lt; Exit</button>
 			<span>My name</span>
 		</div>
-		<div id="chat-messages">
-			<div class="message received-message"><span>Hello you amazing person</span></div>
-			<div class="message sent-message"><span>Hello my good friend</span></div>
-			<div class="message received-message"><span>Hello you amazing person again</span></div>
-			<div class="message sent-message"><img class="image-message" id="mine"></div>
-		</div>
+		<div id="chat-messages"></div>
 		<form name="" onsubmit="(function(){return false})()">
 		<div id="chat-bottom">
 			<input type="text">&nbsp;
@@ -106,6 +102,7 @@
 	<script src="scroller/Animate.js"></script>
 	<script src="scroller/Scroller.js"></script>
 	<script src="scroller/EasyScroller.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
 	<script src="ui.js"></script>
 	<script src="script.js"></script>
 </body>

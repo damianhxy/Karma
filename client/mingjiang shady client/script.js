@@ -1,6 +1,7 @@
 // CAMERA CODE
 
-var pageState = "main";
+const myUserId = Math.floor(Math.random() * 10); // LOL
+let pageState = "main";
 
 const overall = document.getElementById("overall-container");
 
@@ -19,7 +20,7 @@ const context2 = canvas2.getContext("2d");
 const edit = document.getElementById("edit-container");
 const close = document.getElementById("camera-close");
 const send = document.getElementById("camera-send");
-var currentImage;
+let currentImage;
 
 const loading = document.getElementById("loading-container");
 const loadingSuggestions = document.getElementById("loading-suggestions-container");
@@ -28,6 +29,12 @@ const loadingSend = document.getElementById("loading-send");
 const rating = document.getElementById("rating-container");
 
 const chat = document.getElementById("chat-container");
+const chatMessages = document.getElementById("chat-messages");
+const sendMessage = document.getElementById("send-message");
+const newMessage = document.getElementById("new-message");
+let curQuestionId = -1;
+
+let curQuestions = [];
 
 // const socket = io();
 
@@ -147,31 +154,61 @@ send.addEventListener("click", function() {
 	loading.style.display = "block";
 	loading.style.zIndex = "15";
 	pageState = "loading";
-	// socket.off('')
-	// socket.on('', (questions) => {
-	// 	// Populate similar questions
-	// 	loadingSuggestions.innerHTML = "";
-	// 	for (question of questions) {
-	// 		loadingSuggestions.innerHTML += `<div class="loading-suggestion" style="background-image: url(`;
-	// 	}
-	// });
+    socket.off('')
+	socket.on('', (questions) => {
+    	// Populate similar questions
+    	loadingSuggestions.innerHTML = "";
+    	for (question of questions) {
+        	loadingSuggestions.innerHTML += `<div class="loading-suggestion" style="background-image: url(`;
+    	}
+    });
 });
 
 loadingSend.addEventListener("click", function() {
 	if(loadingToggle == 0){
 		loadingToggle = 1;
 		loadingSend.innerHTML = "Searching... Click to cancel";
-		// send out the query
-		hardcodeTimeout = setTimeout(function(){
-			// transition to chat 
+		socket.emit("create", {
+		    userid: curUserId,
+		    photo: currentImage,
+		    subject: 'Mathematics', // TODO
+		});
+		socket.on("answered", (questions, id) => {
+		    const question = questions.find(question => question.id === id);
+		    if (question === undefined) return;
+		    if (question.state !== "open") return;
+
+		    curQuestionId = id;
+
+			// Transition to chat
 			loading.style.display = "none";
 			loading.style.zIndex = "-1";
 			chat.style.display = "block";
 			chat.style.zIndex = "15";
 			pageState = "chat";
-			document.getElementById("mine").style.backgroundImage = "url('" + currentImage.replace(/(\r\n|\n|\r)/gm, "") + "')"
-			console.log(currentImage.replace(/(\r\n|\n|\r)/gm, ""));
-		}, 100);
+			document.getElementById("mine").style.backgroundImage = `url("${currentImage.replace(/(\r\n|\n|\r)/gm, "")})`;
+		    updateMessages(question);
+
+		    socket.off("answered");
+
+		    socket.on("messaged", (questions) => {
+		        const question = questions.find(question => question.id === curQuestionId);
+		        updateMessages(question);
+		    });
+
+		    socket.on("resolve", (questions) => {
+		        const question = questions.find(question => question.id === curQuestionId);
+		        if (question !== undefined && question.state !== "success" && question.state !== "failure") return;
+		        
+		        chat.style.display = "none";
+		        chat.style.zIndex = "-1";
+		        
+		        // TODO: Move to rating page
+		        
+		        socket.off("messaged");
+		        socket.off("resolve");
+		    })
+		});
 	}
 	else {
 		loadingToggle = 0;
@@ -180,4 +217,32 @@ loadingSend.addEventListener("click", function() {
 	}
 });
 
-// socket.on("connected", () => console.log("Connected to server."));
+
+
+sendMessage.addEventListener("click", () => {
+    socket.emit("message", {
+        questionid: curQuestionId,
+        userid: curUserId,
+        message: newMessage.value,
+    });
+});
+
+function updateMessages(question) {
+    let newHTML = "";
+    if (question.asker == myUserId) {
+        newHTML = `<div class="message sent-message"><img class="image-message id="mine" src="${question.photo}"></div>`;
+    } else {
+        newHTML = `<div class="message received-message"><img class="image-message id="mine" src="${question.photo}"></div>`;
+    }
+    for (i of question.messages) {
+        {userid, message} = i;
+        if (userid == myUserId) {
+            newHTML += `<div class="message sent-message><span>${message}</span></div>`;
+        } else {
+            newHTML += `<div class="message received-message><span>${message}</span></div>`;
+        }
+    }
+    chatMessages.innerHTML = newHTML;
+}
+
+socket.on("connected", () => console.log("Connected to server."));

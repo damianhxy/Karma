@@ -25,11 +25,15 @@ io.on("connection", function(socket) {
     // Questions
     socket.on("create", function(data) {
         question.create(data.userid, data.photo, data.subject)
-        .then(function() {
-            return question.all();
+        .then(async (question) => {
+            const questions = await question.all();
+            return {
+                questions,
+                id: question._id,
+            };
         })
-        .then(function(questions) {
-            io.emit("created", questions);
+        .then(function({questions, id}) {
+            io.emit("created", questions, id);
         });
     });
 

@@ -321,9 +321,9 @@ fivestar.addEventListener("click", () => {
 function updateMessages(question) {
     let newHTML = "";
     if (question.asker == curUserId) {
-        newHTML = `<div class="message sent-message"><img class="image-message" id="mine" src="${question.photo}"></div>`;
+        newHTML = `<div class="message sent-message"><img class="image-message" id="mine" style="background-image:url(${question.photo})"></div>`;
     } else {
-        newHTML = `<div class="message received-message"><img class="image-message" id="mine" src="${question.photo}"></div>`;
+        newHTML = `<div class="message received-message"><img class="image-message" id="mine" src="background-image:url(${question.photo})"></div>`;
     }
     for (i of question.messages) {
         const {userid, message} = i;

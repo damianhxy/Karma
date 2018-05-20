@@ -20,6 +20,7 @@ html, body {
 	position: absolute;
 	top: 0;
 	left: 0;
+	touch-action: none;
 }
 
 .container {
@@ -27,26 +28,26 @@ html, body {
 	height: 100vh;
 }
 
-#camera-container, #teach-container, #settings-container {
+#camera-container, #teach-container, #profile-container {
 	display: inline-block;
 	vertical-align: bottom;
 }
 
-#camera-container {
+#camera-container, #camera2-container {
 	position: relative;
 	text-align: center;
 	width: 100vw;
 	height: 100vh;
 }
 
-#camera-video {
+#camera-video, #camera2-video {
 	width: 100vw;
 	height: 100vh;
 	margin: 0;
 	background-color: black;
 }
 
-#camera-button {
+#camera-button, #camera2-button {
 	display: block;
 	position: absolute;
 	margin: auto;
@@ -63,23 +64,23 @@ html, body {
 	z-index: 15;
 }
 
-#camera-canvas {
+#camera-canvas, #camera2-canvas {
 	position: absolute;
 	top: 0;
 	left: 0;
 }
 
-#camera-close {
+#camera-close, #camera2-close, #camera2-cancel {
 	position: absolute;
 	top: 1em;
 	right: 1em;
 	font-size: 2em;
 	color: white;
 	border: 0px;
-	background-color: none;
+	background-color: transparent;
 }
 
-#camera-send {
+#camera-send, #camera2-send {
 	position: absolute;
 	bottom: 3em;
 	right: 3em;
@@ -122,11 +123,47 @@ html, body {
 	color: white;
 	font-weight: bold;
 	font-size: 1.5em;
-	text-shadow: 0 0 2px rgba(0,0,0,0.8);
+	text-shadow: 0 0 4px rgba(0,0,0,0.8);
 }
+
+/* Profile/profile */
+
+#profile-container {
+	text-align: center;
+	padding-top: 7em;
+}
+
+#profile-picture {
+	background-color: #b2bec3;
+	height: 10em;
+	width: 10em;
+	border-radius: 5em;
+	margin: auto;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.6);
+}
+
+#profile-name {
+	font-size: 2em;
+	margin-top: 0.6em;
+	margin-bottom: 0.1em;
+}
+
+#profile-karma {
+	font-size: 1.1em;
+	margin: 0.2em;
+	margin-top: 0;
+}
+
+/* Chat */
 
 #chat-container {
 	position: relative;
+}
+
+#chat-messages {
+	height: calc( 100vh - 3em );
+	overflow-y: auto; 
+	padding-bottom: 3em;
 }
 
 .message {
@@ -138,8 +175,8 @@ html, body {
 }
 
 .image-message {
-	height: 8em;
-	width: 8em;
+	height: 10em;
+	width: 10em;
 	background-color: #dfe6e9;
 	background-size: cover;
 	background-position: left;
@@ -162,12 +199,61 @@ html, body {
 	border-radius: 1em 1em 0 1em;
 }
 
+#chat-header {
+	height: 3em;
+	background-color: #dfe6e9;
+	text-align: center;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.6);
+}
+
+#chat-header button {
+	border: 0px;
+	background-color: transparent;
+	font-size: inherit;
+}
+
+#chat-header span {
+	font-weight: bold;
+}
+
+#chat-header *, #chat-bottom *{
+	line-height: 3em;
+}
+
+/*back button*/
+#chat-header button {
+	position: absolute;
+	left: 0.5em;
+}
+
 #chat-bottom {
 	position: fixed;
 	bottom: 0;
 	width: 100%;
-	padding: 0.5em;
-	background-color: #dfe6e9;
+	height: 3em;
+}
+
+#chat-bottom input[type=text] {
+	border: 0px;
+	height: 2em;
+	border-radius: 1em;
+	padding: 0.2em 1em;
+	vertical-align: middle;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.6);
+	width: calc( 100% - 7em );
+	margin-left: 0.8em;
+	outline: none;
+	font-size: 1.1em;
+}
+
+#chat-bottom input[type=button], #chat-bottom input[type=submit] {
+	display: inline-block;
+	width: 3.2em;
+	border: 0px;
+	border-radius: 3em;
+	background-color: #00b894;
+	color: white;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.6);
 }
 
 /* Loading */
@@ -200,10 +286,11 @@ html, body {
 	left: 50%;
 	transform: translateX(-50%);
 	width: 90%;
-	box-shadow: 0 3px 10px rgba(0,0,0,0.6);
+	box-shadow: 0 1px 5px rgba(0,0,0,0.6);
 }
 
 #loading-suggestions, #loading-chat {
+	display: block;
 	position: absolute;
 	bottom: 0;
 	height: calc( 100vh - 5em );
@@ -218,6 +305,9 @@ html, body {
 }
 
 #loading-chat {
+	height: calc( 100% - 5em );
+	overflow-y: auto;
+	padding-bottom: 5em;
 	/*bottom: -100%;*/
 }
 
@@ -241,5 +331,37 @@ html, body {
 }
 
 #loading-chat-close {
+	position: fixed;
+	bottom: 1em;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 3em;
+	height: 3em;
+	font-size: inherit;
+	border-radius: 3em;
+	background-color: #d63031;
+	color: white;
+	border: 0px;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.6);
+}
 
+#rating-container {
+	text-align: center;
+	margin-top: 14em;
+}
+
+#rating-container #thatsall {
+	font-size: 3em;
+	margin: 0.2em;
+}
+
+#rating-container #howwell {
+	font-size: 1.2em;
+	font-weight: bold;
+}
+
+.star-button {
+	background: none;
+	border: 0px;
+	font-size: 2em;
 }

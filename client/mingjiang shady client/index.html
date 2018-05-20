@@ -3,6 +3,7 @@
 <head>
 	<title>karma</title>
 	<link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=no">
 </head>
 <body>
 	<div id="edit-container" class="container">
@@ -11,21 +12,42 @@
 		<button id="camera-send">OK</button>
 	</div>
 	<div id="chat-container" class="container">
-		<div id="chat-header"></div>
+		<div id="chat-header">
+			<button>&lt; Exit</button>
+			<span>My name</span>
+		</div>
 		<div id="chat-messages">
-			<div class="message image-message received-message"></div>
 			<div class="message received-message"><span>Hello you amazing person</span></div>
 			<div class="message sent-message"><span>Hello my good friend</span></div>
 			<div class="message received-message"><span>Hello you amazing person again</span></div>
 			<div class="message sent-message"><img class="image-message" id="mine"></div>
 		</div>
+		<form name="" onsubmit="(function(){return false})()">
 		<div id="chat-bottom">
-			<input type="text">
-			<button>GO</button>
+			<input type="text">&nbsp;
+			<input type="button" value="C">
+			<input type="submit" value="GO">
 		</div>
+		</form>
 	</div>
+	<div id="rating-container" class="container">
+		<!-- insert text, 5 star buttons -->
+		<p id="thatsall">That's all!</p>
+		<p id="howwell">How well did this person answer your questions?</p>
+		<button class="star-button" id="rating-one">⭐</button>
+		<button class="star-button" id="rating-two">⭐</button>
+		<button class="star-button" id="rating-three">⭐</button>
+		<button class="star-button" id="rating-four">⭐</button>
+		<button class="star-button" id="rating-five">⭐</button>
 	</div>
-	<div id="waiting-container" class="container">
+	<div id="camera2-container" class="container">
+		<!-- insert video, canvas, snap button, close buton, retake button  -->
+		<button id="camera2-button"></button>
+		<video id="camera2-video" autoplay></video>
+		<canvas id="camera2-canvas"></canvas>
+		<button id="camera2-close">X</button>
+		<button id="camera2-cancel">X</button>
+		<button id="camera2-send">OK</button>
 	</div>
 	<div id="loading-container" class="container">
 		<div id="loading-header">
@@ -38,13 +60,31 @@
 				<div class="loading-suggestion" style="background-image: url(math3.jpg)" data-teachid="math3"></div>
 			</div>
 		</div>
-		<!-- <div id="loading-chat">
+		 <div id="loading-chat">
 
 			<div class="message image-message received-message"></div>
 			<div class="message received-message"><span>Hello you amazing person</span></div>
 			<div class="message sent-message"><span>Hello my good friend</span></div>
+			<div class="message received-message"><span>Hello you amazing person</span></div>
+			<div class="message sent-message"><span>Hello my good friend</span></div>
+			<div class="message received-message"><span>Hello you amazing person</span></div>
+			<div class="message sent-message"><span>Hello my good friend</span></div>
+			<div class="message received-message"><span>Hello you amazing person</span></div>
+			<div class="message sent-message"><span>Hello my good friend</span></div>
+			<div class="message received-message"><span>Hello you amazing person</span></div>
+			<div class="message sent-message"><span>Hello my good friend</span></div>
+			<div class="message received-message"><span>Hello you amazing person</span></div>
+			<div class="message sent-message"><span>Hello my good friend</span></div>
+			<div class="message received-message"><span>Hello you amazing person</span></div>
+			<div class="message sent-message"><span>Hello my good friend</span></div>
+			<div class="message received-message"><span>Hello you amazing person</span></div>
+			<div class="message sent-message"><span>Hello my good friend</span></div>
+			<div class="message received-message"><span>Hello you amazing person</span></div>
+			<div class="message sent-message"><span>Hello my good friend</span></div>
+			<div class="message received-message"><span>Hello you amazing person</span></div>
+			<div class="message sent-message"><span>Hello my good friend</span></div>
 			<button id="loading-chat-close">X</button>
-		</div>-->
+		</div>
 	</div>
 	<div id="overall-container" class="container" data-scrollable="true">
 		<div id="camera-container">
@@ -57,8 +97,10 @@
 			<div class="teach-card" style="background-image: url(bio1.jpg)" data-teachid="bio1">
 				<p>Biology</p>
 			</div>
-		</div><div id="settings-container" class="container">
-
+		</div><div id="profile-container" class="container">
+			<div id="profile-picture"></div>
+			<p id="profile-name">Future Now</p>
+			<p id="profile-karma">15 Karma</p>
 		</div>
 	</div>
 	<script src="scroller/Animate.js"></script>

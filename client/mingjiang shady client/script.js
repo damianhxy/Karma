@@ -10,6 +10,12 @@ const canvas = document.getElementById("camera-canvas");
 const context = canvas.getContext("2d");
 var stream;
 
+const camera2 = document.getElementById("camera2-container")
+const video2 = document.getElementById("camera2-video");
+const button2 = document.getElementById("camera2-button");
+const canvas2 = document.getElementById("camera2-canvas");
+const context2 = canvas2.getContext("2d");
+
 const edit = document.getElementById("edit-container");
 const close = document.getElementById("camera-close");
 const send = document.getElementById("camera-send");
@@ -19,14 +25,16 @@ const loading = document.getElementById("loading-container");
 const loadingSuggestions = document.getElementById("loading-suggestions-container");
 const loadingSend = document.getElementById("loading-send");
 
+const rating = document.getElementById("rating-container");
+
 const chat = document.getElementById("chat-container");
 
 // const socket = io();
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-edit.style.display = loading.style.display = chat.style.display = "none";
-edit.style.zIndex = loading.style.zIndex = chat.style.zIndex = "-1";
+edit.style.display = loading.style.display = chat.style.display = rating.style.display = camera2.style.display = "none";
+edit.style.zIndex = loading.style.zIndex = chat.style.zIndex = rating.style.zIndex = camera2.style.zIndex = "-1";
 
 var loadingToggle = 0;
 var hardcodedTimeout;
@@ -67,6 +75,26 @@ function stopCamera() {
 	stream.getTracks()[0].stop();
 }
 
+// access to camera
+function startCamera2() {
+	if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+		navigator.mediaDevices.getUserMedia({ video: true }).then(function(vid) {
+			stream = vid;
+			try {
+				video2.srcObject = stream;
+			} catch (error) {
+				video2.src = URL.createObjectURL(stream);
+			}
+			video2.play();
+		});
+	}
+} // initiate on startup
+
+
+function stopCamera2() {
+	stream.getTracks()[0].stop();
+}
+
 function teachMouse(something, event) {
 	something.dataset.time = Date.now();
 	something.dataset.pos = event.clientX;
@@ -79,10 +107,6 @@ function teach(something, event) {
 		overall.style.display = "none";
 		overall.style.zIndex = "-1";
 	}
-}
-
-function readSuggestion(suggestion) {
-	// 
 }
 
 // CAMERA LISTENERS
@@ -98,6 +122,8 @@ button.addEventListener("click", function() {
 	edit.style.zIndex = "20";
 	overall.style.display = "none";
 	overall.style.zIndex = "-1";
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
 	context.drawImage(video, (window.innerWidth-vidWidth)/2, (window.innerHeight-vidHeight)/2, getVideoWidth(), getVideoHeight());
 	stopCamera();
 	pageState = "edit";

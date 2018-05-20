@@ -9,7 +9,7 @@
 <body>
 	{{#unless user}}
 	<div id="login-container" class="container">
-		<form action="/users/signin" >
+		<form action="/users/signin" method="POST">
 		<img src="panda.png" height="200">
 		<h1>KARMA</h1>
 		<input id="login-username" type="text" placeholder="Username" name="username">

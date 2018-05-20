@@ -16,6 +16,7 @@ exports.add = function(req, username, password) {
         if (user) throw Error("User already exists");
         return bcryptjs.hashAsync(password, settings.HASH_ROUNDS)
         .then(function(hash) {
+            console.log("hashed.");
             return users.insertAsync({
                 "username": username,
                 "hash": hash,
@@ -51,3 +52,11 @@ exports.setSocketID = function(id, socketid) {
         users.updateAsync({ _id: id }, { $set: user });
     });
 };
+
+exports.clearSocketID = function(socketid) {
+    return users.findOneAsync({ socket_id: socketid })
+    .then(function(user) {
+        user.socket_id = "";
+        users.updateAsync({ _id: user._id }, { $set: user });
+    });
+}

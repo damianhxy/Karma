@@ -1,6 +1,5 @@
 // LOL
 const subject = "Mathematics";
-const myUserId = Math.floor(Math.random() * 10);
 
 const socket = io();
 let pageState = "main";
@@ -38,6 +37,8 @@ const chatNewPhoto = document.getElementById("chat-new-photo");
 let curQuestionId = -1;
 
 let curQuestions = [];
+
+socket.emit("init", curUserId);
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;

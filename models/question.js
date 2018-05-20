@@ -20,7 +20,7 @@ exports.create = function(asker, photo, subject) {
 };
 
 exports.accept = function(questionid, askee) {
-    return questions.findAsnyc({ _id: questionid })
+    return questions.findAsync({ _id: questionid })
     .then(function(question) {
         question.askee = askee;
         question.state = "open";
@@ -29,11 +29,11 @@ exports.accept = function(questionid, askee) {
 };
 
 exports.all = function() {
-    return questions.findAsnyc({});
+    return questions.findAsync({});
 };
 
 exports.resolve = function(questionid, success) {
-    return questions.findAsnyc({ _id: questionid })
+    return questions.findAsync({ _id: questionid })
     .then(function(question) {
         if (success) question.state = "success";
         else question.state = "failure";
@@ -42,7 +42,7 @@ exports.resolve = function(questionid, success) {
 };
 
 exports.addMessage = function(questionid, userid, message, type) {
-    return questions.findAsnyc({ _id: questionid })
+    return questions.findAsync({ _id: questionid })
     .then(function(question) {
         question.messages.append({
             userid,

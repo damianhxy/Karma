@@ -7,7 +7,8 @@
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=no">
 </head>
 <body>
-	<!-- <div id="login-container" class="container">
+	{{#unless user}}
+	<div id="login-container" class="container">
 		<form action="/user/signin" >
 		<img src="panda.png" height="200">
 		<h1>KARMA</h1>
@@ -15,7 +16,8 @@
 		<input id="login-password" type="password" placeholder="Password" name="password">
 		<input id="login-submit" type="submit">
 		</form>
-	</div> -->
+	</div>
+	{{else}}
 	<div id="edit-container" class="container">
 		<select name="subject">
 			<option value="math">Mathematics</option>
@@ -38,9 +40,9 @@
 		<div id="chat-messages"></div>
 		<form name="" onsubmit="(function(){return false})()">
 		<div id="chat-bottom">
-			<input id="new-message" type="text">&nbsp;
-			<input type="button" value="C">
-			<input id="send-message" type="submit" value="GO">
+			<input id="chat-new-text" type="text">&nbsp;
+			<input id="chat-new-photo" type="button" value="C">
+			<input id="chat-new-send" type="submit" value="GO">
 		</div>
 		</form>
 	</div>
@@ -103,7 +105,11 @@
 	<script src="scroller/Scroller.js"></script>
 	<script src="scroller/EasyScroller.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.slim.js"></script>
-	<script src="ui.js"></script>
+	<script type="text/javascript">
+		let curUserId = "{{user._id}}";
+	</script>
 	<script src="script.js"></script>
+
+	{{/unless}}
 </body>
 </html>

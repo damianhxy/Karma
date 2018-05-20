@@ -11,6 +11,8 @@ var localStrategy = require("passport-local");
 var nedbStore = require("express-nedb-session")(session);
 var dateFormat = require("dateformat");
 
+var user = require("../models/user.js");
+
 module.exports = function(app, express) {
     require("console-stamp")(console, {
         pattern: settings.TIME_FORMAT,
@@ -59,6 +61,7 @@ module.exports = function(app, express) {
     passport.use("local-signup", new localStrategy(
         { passReqToCallback: true },
         function(req, username, password, done) {
+            console.log(username, password);
             return user.add(req, username, password)
             .then(function(user) {
                 console.log("Signed up", user.username);

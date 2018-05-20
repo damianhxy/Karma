@@ -9,28 +9,46 @@ var question = require("./models/question.js");
 
 require("./controllers/config.js")(app, express);
 
+app.get("/", function(req, res) {
+    res.render("index", {
+        layout: false,
+        user: req.user
+    })
+});
+
 app.use("/users", require("./controllers/users.js"));
 
 io.on("connection", function(socket) {
     console.log("Client connected");
 
-    socket.on("init", function(data) { // Sends user_id
-        user.setSocketID(data, socket.id);
+    const id = socket.id;
+
+    socket.on("init", function(userId) { // Sends user_id
+        user.setSocketID(userId, id);
+        console.log(userId);
     });
 
     socket.on("disconnect", function() {
-        user.setSocketID(data, "");
+        user.clearSocketID(id);
     });
-
+/*
+    socket.on("disconnect", function() {
+        user.setSocketID(userId, "");
+    });
+*/
     // Questions
     socket.on("create", function(data) {
+        var id;
         question.create(data.userid, data.photo, data.subject)
-        .then(async (question) => {
-            const questions = await question.all();
+        .then((ret) => {
+            id = ret._id;
+            return question.all();
+        })
+        .then((questions) => {
             return {
                 questions,
-                id: question._id,
-            };
+                id
+            }
         })
         .then(function({questions, id}) {
             io.emit("created", questions, id);

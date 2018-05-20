@@ -8,12 +8,12 @@ var auth = require("../middlewares/auth.js");
 
 router.post("/signin", passport.authenticate("local-signin", {
     successRedirect: "/",
-    failureRedirect: "/signin"
+    failureRedirect: "/"
 }));
 
 router.post("/signup", passport.authenticate("local-signup", {
     successRedirect: "/",
-    failureRedirect: "/register"
+    failureRedirect: "/register.html"
 }));
 
 router.get("/signout", auth, function(req, res) {

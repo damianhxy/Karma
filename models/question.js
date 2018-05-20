@@ -37,7 +37,7 @@ exports.getPending = function(askee, subjects) {
             return relevant;
         }});
     });
-}
+};
 
 exports.resolve = function(questionid, success) {
     return questions.findAsnyc({ _id: questionid })
@@ -48,13 +48,14 @@ exports.resolve = function(questionid, success) {
     });
 };
 
-exports.addMessage = function(questionid, userid, message) {
+exports.addMessage = function(questionid, userid, message, type) {
     return questions.findAsnyc({ _id: questionid })
     .then(function(question) {
         question.messages.append({
             userid,
-            message
+            message,
+            type
         });
         return questions.updateAsync({ _id: questionid }, { $set: question });
     });
-}
+};

@@ -44,7 +44,7 @@ io.on("connection", function(socket) {
     });
 
     socket.on("message", function(data) {
-        question.addMessage(data.questionid, data.userid, data.message)
+        question.addMessage(data.questionid, data.userid, data.message, data.type)
         .then(function() {
             return question.getPending(data.askee);
         })

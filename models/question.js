@@ -44,6 +44,7 @@ exports.resolve = function(questionid, success) {
 exports.addMessage = function(questionid, userid, message, type) {
     return questions.findAsync({ _id: questionid })
     .then(function(question) {
+        if (!question.messages) question.messages = [];
         question.messages.push({
             userid,
             message,

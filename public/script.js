@@ -28,12 +28,14 @@ const loadingSuggestions = document.getElementById("loading-suggestions-containe
 const loadingSend = document.getElementById("loading-send");
 
 const rating = document.getElementById("rating-container");
+const fivestar = document.getElementById("rating-five");
 
 const chat = document.getElementById("chat-container");
 const chatMessages = document.getElementById("chat-messages");
 const chatNewSend = document.getElementById("chat-new-send");
 const chatNewText = document.getElementById("chat-new-text");
 const chatNewPhoto = document.getElementById("chat-new-photo");
+const chatExit = document.getElementById("chat-exit");
 let curQuestionId = -1;
 
 const teach = document.getElementById("teach-container");
@@ -300,6 +302,21 @@ chatNewPhoto.addEventListener("click", () => {
     startCamera2();
     // Start camera UI
 });
+
+chatExit.addEventListener("click", () => {
+	chat.style.display = "none";
+    chat.style.zIndex = "-1";
+    rating.style.display = "block";
+    rating.style.zIndex = "15";
+});
+
+fivestar.addEventListener("click", () => {
+    rating.style.display = "none";
+    rating.style.zIndex = "-1";
+    overall.style.display = "block";
+    overall.style.zIndex = "15";
+    startCamera();
+})
 
 function updateMessages(question) {
     let newHTML = "";

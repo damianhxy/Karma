@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>karma</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<div id="edit-container" class="container">
+		<canvas id="camera-canvas"></canvas>
+		<button id="camera-close">X</button>
+		<button id="camera-send">OK</button>
+	</div>
+	<div id="chat-container" class="container">
+		<div id="chat-header"></div>
+		<div id="chat-messages">
+			<div class="message image-message received-message"></div>
+			<div class="message received-message"><span>Hello you amazing person</span></div>
+			<div class="message sent-message"><span>Hello my good friend</span></div>
+			<div class="message received-message"><span>Hello you amazing person again</span></div>
+			<div class="message sent-message"><img class="image-message" id="mine"></div>
+		</div>
+		<div id="chat-bottom">
+			<input type="text">
+			<button>GO</button>
+		</div>
+	</div>
+	</div>
+	<div id="waiting-container" class="container">
+	</div>
+	<div id="loading-container" class="container">
+		<div id="loading-header">
+			<button id="loading-send">Find a live tutor!</button>
+		</div><div id="loading-suggestions">
+			<p id="loading-suggestions-title">...or did you mean?</p>
+			<div id="loading-suggestions-container">
+				<div class="loading-suggestion" style="background-image: url(math1.jpg)" data-teachid="math1"></div>
+				<div class="loading-suggestion" style="background-image: url(math2.jpg)" data-teachid="math2"></div>
+				<div class="loading-suggestion" style="background-image: url(math3.jpg)" data-teachid="math3"></div>
+			</div>
+		</div>
+		<!-- <div id="loading-chat">
+
+			<div class="message image-message received-message"></div>
+			<div class="message received-message"><span>Hello you amazing person</span></div>
+			<div class="message sent-message"><span>Hello my good friend</span></div>
+			<button id="loading-chat-close">X</button>
+		</div>-->
+	</div>
+	<div id="overall-container" class="container" data-scrollable="true">
+		<div id="camera-container">
+			<button id="camera-button"></button>
+			<video id="camera-video" autoplay></video>
+		</div><div id="teach-container" class="container" onmousedown="teachMouse(this, event)" onmouseup="teach(this, event)">
+			<div class="teach-card" style="background-image: url(math1.jpg)" data-teachid="math1">
+				<p>Mathematics</p>
+			</div>
+			<div class="teach-card" style="background-image: url(bio1.jpg)" data-teachid="bio1">
+				<p>Biology</p>
+			</div>
+		</div><div id="settings-container" class="container">
+
+		</div>
+	</div>
+	<script src="scroller/Animate.js"></script>
+	<script src="scroller/Scroller.js"></script>
+	<script src="scroller/EasyScroller.js"></script>
+	<script src="ui.js"></script>
+	<script src="script.js"></script>
+</body>
+</html>

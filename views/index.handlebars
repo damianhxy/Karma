@@ -9,7 +9,7 @@
 <body>
 	{{#unless user}}
 	<div id="login-container" class="container">
-		<form action="/user/signin" >
+		<form action="/users/signin" >
 		<img src="panda.png" height="200">
 		<h1>KARMA</h1>
 		<input id="login-username" type="text" placeholder="Username" name="username">
@@ -34,7 +34,7 @@
 	</div>
 	<div id="chat-container" class="container">
 		<div id="chat-header">
-			<button>&lt; Exit</button>
+			<button id="chat-exit">&lt; Exit</button>
 			<span>My name</span>
 		</div>
 		<div id="chat-messages"></div>

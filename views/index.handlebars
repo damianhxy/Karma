@@ -38,13 +38,13 @@
 			<span>My name</span>
 		</div>
 		<div id="chat-messages"></div>
-		<form name="" onsubmit="(function(){return false})()">
+		{{!-- <form name="" onsubmit="(function(){return false})()"> --}}
 		<div id="chat-bottom">
 			<input id="chat-new-text" type="text">&nbsp;
 			<input id="chat-new-photo" type="button" value="C">
 			<input id="chat-new-send" type="submit" value="GO">
 		</div>
-		</form>
+		{{!-- </form> --}}
 	</div>
 	<div id="rating-container" class="container">
 		<!-- insert text, 5 star buttons -->
@@ -88,7 +88,7 @@
 		<div id="camera-container">
 			<button id="camera-button"></button>
 			<video id="camera-video" autoplay></video>
-		</div><div id="teach-container" class="container" onmousedown="teachMouse(this, event)" onmouseup="teach(this, event)">
+		</div><div id="teach-container" class="container" >
 			<div class="teach-card" style="background-image: url(math1.jpg)" data-teachid="math1">
 				<p>Mathematics</p>
 			</div>

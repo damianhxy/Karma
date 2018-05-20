@@ -24,8 +24,13 @@ io.on("connection", function(socket) {
     const id = socket.id;
 
     socket.on("init", function(userId) { // Sends user_id
-        user.setSocketID(userId, id);
-        console.log(userId);
+        user.setSocketID(userId, id)
+        .then(function() {
+            return question.all();
+        })
+        .then(function(questions) {
+            io.emit("populateQuestions", questions);
+        });
     });
 
     socket.on("disconnect", function() {

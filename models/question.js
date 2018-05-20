@@ -29,7 +29,7 @@ exports.accept = function(questionid, askee) {
 };
 
 exports.all = function() {
-    return questions.findAsync({});
+    return questions.find({}).sort({ time: -1 }).execAsync();
 };
 
 exports.resolve = function(questionid, success) {
@@ -44,7 +44,7 @@ exports.resolve = function(questionid, success) {
 exports.addMessage = function(questionid, userid, message, type) {
     return questions.findAsync({ _id: questionid })
     .then(function(question) {
-        question.messages.append({
+        question.messages.push({
             userid,
             message,
             type

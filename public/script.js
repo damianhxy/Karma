@@ -36,6 +36,8 @@ const chatNewText = document.getElementById("chat-new-text");
 const chatNewPhoto = document.getElementById("chat-new-photo");
 let curQuestionId = -1;
 
+const teach = document.getElementById("teach-container");
+
 let curQuestions = [];
 
 socket.emit("init", curUserId);
@@ -104,12 +106,55 @@ function teachMouse(something, event) {
 	something.dataset.pos = event.clientX;
 }
 
-function teach(something, event) {
+function teachUp(something, event) {
 	if(Date.now() - something.dataset.time < 200 && Math.abs(event.clientX - something.dataset.pos) < 20){
 		// click
 		console.log(something.dataset.teachid);
 		overall.style.display = "none";
 		overall.style.zIndex = "-1";
+		chat.style.display = "block";
+		chat.style.zIndex = "20";
+		pageState = "chat";
+
+		curQuestionId = something.dataset.id;
+
+		socket.emit("answer", {
+			questionid: something.dataset.id,
+			askee: curUserId
+		});
+
+		socket.on("answered", (questions) => {
+		    const question = questions.find(question => question._id === curQuestionId);
+		    if (question === undefined || question.state !== "open") return;
+
+			// Transition to chat
+			loading.style.display = "none";
+			loading.style.zIndex = "-1";
+			chat.style.display = "block";
+			chat.style.zIndex = "15";
+			pageState = "chat";
+		    updateMessages(question);
+
+		    socket.off("answered");
+
+		    socket.on("messaged", (questions) => {
+		        const question = questions.find(question => question._id === curQuestionId);
+		        updateMessages(question);
+		    });
+ 
+		    socket.on("resolve", (questions) => {
+		        const question = questions.find(question => question._id === curQuestionId);
+		        if (question !== undefined && question.state !== "success" && question.state !== "failure") return;
+		        
+		        chat.style.display = "none";
+		        chat.style.zIndex = "-1";
+		        
+		        // TODO: Move to rating page
+		        
+		        socket.off("messaged");
+		        socket.off("resolve");
+		    });
+		});
 	}
 }
 
@@ -190,8 +235,9 @@ loadingSend.addEventListener("click", function() {
 		    subject,
 		});
 
+		socket.off("created");
 		socket.on("created", (questions, id) => {
-		    const question = questions.find(question => question.id === id);
+		    const question = questions.find(question => question._id === id);
 		    if (question === undefined || question.asker !== curUserId) return;
 
 		    curQuestionId = id;
@@ -200,7 +246,8 @@ loadingSend.addEventListener("click", function() {
 		});
 
 		socket.on("answered", (questions) => {
-		    if (question.state !== "open") return;
+		    const question = questions.find(question => question._id === curQuestionId);
+		    if (question === undefined || question.state !== "open") return;
 
 			// Transition to chat
 			loading.style.display = "none";
@@ -208,18 +255,17 @@ loadingSend.addEventListener("click", function() {
 			chat.style.display = "block";
 			chat.style.zIndex = "15";
 			pageState = "chat";
-			document.getElementById("mine").style.backgroundImage = `url("${currentImage.replace(/(\r\n|\n|\r)/gm, "")})`;
 		    updateMessages(question);
 
 		    socket.off("answered");
 
 		    socket.on("messaged", (questions) => {
-		        const question = questions.find(question => question.id === curQuestionId);
+		        const question = questions.find(question => question._id === curQuestionId);
 		        updateMessages(question);
 		    });
  
 		    socket.on("resolve", (questions) => {
-		        const question = questions.find(question => question.id === curQuestionId);
+		        const question = questions.find(question => question._id === curQuestionId);
 		        if (question !== undefined && question.state !== "success" && question.state !== "failure") return;
 		        
 		        chat.style.display = "none";
@@ -246,6 +292,7 @@ chatNewSend.addEventListener("click", () => {
         userid: curUserId,
         message: chatNewText.value,
     });
+    chatNewText.value = "";
 });
 
 chatNewPhoto.addEventListener("click", () => {
@@ -256,14 +303,14 @@ chatNewPhoto.addEventListener("click", () => {
 
 function updateMessages(question) {
     let newHTML = "";
-    if (question.asker == myUserId) {
+    if (question.asker == curUserId) {
         newHTML = `<div class="message sent-message"><img class="image-message" id="mine" src="${question.photo}"></div>`;
     } else {
         newHTML = `<div class="message received-message"><img class="image-message" id="mine" src="${question.photo}"></div>`;
     }
     for (i of question.messages) {
         const {userid, message} = i;
-        if (userid == myUserId) {
+        if (userid == curUserId) {
             newHTML += `<div class="message sent-message"><span>${message}</span></div>`;
         } else {
             newHTML += `<div class="message received-message"><span>${message}</span></div>`;
@@ -273,3 +320,19 @@ function updateMessages(question) {
 }
 
 socket.on("connected", () => console.log("Connected to server."));
+
+socket.on("populateQuestions", (questions) => {
+	populateQuestions(questions);
+});
+
+socket.on("created", (questions, id) => {
+	populateQuestions(questions);
+});
+
+function populateQuestions(questions) {
+	let newHtml = "";
+	for (question of questions) {
+		newHtml += `<div class="teach-card" style="background-image: url(${question.photo}" data-id="${question._id}" onmousedown="teachMouse(this, event)" onmouseup="teachUp(this, event)"><p>${question.subject}</p></div>`;
+	}
+	teach.innerHTML = newHtml;
+}

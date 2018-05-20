@@ -5,13 +5,16 @@ var questions = new nedb({ filename: "./database/questions", autoload: true });
 Promise.promisifyAll(questions);
 Promise.promisifyAll(questions.find().constructor.prototype);
 
-exports.create = function(asker, photo) {
+var user = require("./user.js");
+
+exports.create = function(asker, photo, subject) {
     return questions.insertAsync({
         asker,
         askee: "-1",
         photo,
         messages: [],
         state: "pending", // Pending, Open, Success, Failure
+        subject,
         time: Date.now()
     });
 };
@@ -25,10 +28,15 @@ exports.accept = function(questionid, askee) {
     });
 };
 
-exports.getPending = function(askee) {
-    return questions.findAsync({ $where: function() {
-        return this.state === "pending" || (this.state === "open" && this.askee === askee);
-    }});
+exports.getPending = function(askee, subjects) {
+    return user.get({ _id: askee })
+    .then(function(userDetails) {
+        return questions.find({ $where: function() {
+            var relevant = this.state === "pending" || (this.state === "open" && this.askee === askee);
+            relevant &= userDetails.subjects.include(this.subject);
+            return relevant;
+        }});
+    });
 }
 
 exports.resolve = function(questionid, success) {

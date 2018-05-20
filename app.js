@@ -24,7 +24,7 @@ io.on("connection", function(socket) {
 
     // Questions
     socket.on("create", function(data) {
-        question.create(data.userid, photo)
+        question.create(data.userid, data.photo, data.subject)
         .then(function() {
             return question.getPending(data.askee);
         })

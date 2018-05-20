@@ -28,15 +28,8 @@ exports.accept = function(questionid, askee) {
     });
 };
 
-exports.getPending = function(askee, subjects) {
-    return user.get({ _id: askee })
-    .then(function(userDetails) {
-        return questions.find({ $where: function() {
-            var relevant = this.state === "pending" || (this.state === "open" && this.askee === askee);
-            relevant &= userDetails.subjects.include(this.subject);
-            return relevant;
-        }});
-    });
+exports.all = function() {
+    return questions.findAsnyc({});
 };
 
 exports.resolve = function(questionid, success) {

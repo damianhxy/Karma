@@ -26,7 +26,7 @@ io.on("connection", function(socket) {
     socket.on("create", function(data) {
         question.create(data.userid, data.photo, data.subject)
         .then(function() {
-            return question.getPending(data.askee);
+            return question.all();
         })
         .then(function(questions) {
             io.emit("created", questions);
@@ -36,7 +36,7 @@ io.on("connection", function(socket) {
     socket.on("answer", function(data) {
         question.accept(data.questionid, data.askee)
         .then(function() {
-            return question.getPending(data.askee);
+            return question.all();
         })
         .then(function(questions) {
             io.emit("answered", questions);
@@ -46,7 +46,7 @@ io.on("connection", function(socket) {
     socket.on("message", function(data) {
         question.addMessage(data.questionid, data.userid, data.message, data.type)
         .then(function() {
-            return question.getPending(data.askee);
+            return question.all();
         })
         .then(function(questions) {
             io.emit("messaged", questions);
@@ -56,7 +56,7 @@ io.on("connection", function(socket) {
     socket.on("resolve", function(data) {
         question.resolve(data.questionid, data.success)
         .then(function() {
-            return question.getPending(data.askee);
+            return question.all();
         })
         .then(function(questions) {
             io.emit("resolved", questions);

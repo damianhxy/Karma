@@ -13,7 +13,17 @@ app.get("/", function(req, res) {
     res.render("index", {
         layout: false,
         user: req.user
+    });
+});
+
+app.get("/clear", function(req, res) {
+    user.clear()
+    .then(function() {
+        return question.clear();
     })
+    .then(function() {
+        res.send("Database cleared");
+    });
 });
 
 app.use("/users", require("./controllers/users.js"));

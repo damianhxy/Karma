@@ -60,3 +60,7 @@ exports.clearSocketID = function(socketid) {
         users.updateAsync({ _id: user._id }, { $set: user });
     });
 }
+
+exports.clear = function() {
+    return users.removeAsync({}, { multi: true });
+};

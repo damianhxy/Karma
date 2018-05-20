@@ -52,3 +52,7 @@ exports.addMessage = function(questionid, userid, message, type) {
         return questions.updateAsync({ _id: questionid }, { $set: question });
     });
 };
+
+exports.clear = function() {
+    return questions.removeAsync({}, { multi: true });
+};

@@ -325,9 +325,9 @@ fivestar.addEventListener("click", () => {
 function updateMessages(question) {
   let newHTML;
   if (question.asker === curUserId) {
-    newHTML = `<div class="message sent-message"><img class="image-message" id="mine" style="background-image:url(${question.photo})"></div>`;
+    newHTML = `<div class="message sent-message"><img class="image-message" id="mine" style="background-image: url(${escapeHtml(question.photo)})"></div>`;
   } else {
-    newHTML = `<div class="message received-message"><img class="image-message" id="mine" src="background-image:url(${question.photo})"></div>`;
+    newHTML = `<div class="message received-message"><img class="image-message" id="mine" style="background-image: url(${escapeHtml(question.photo)})"></div>`;
   }
   for (const msg of question.messages) {
     const { userid, message } = msg;
@@ -357,7 +357,7 @@ function populateQuestions(questions) {
     const safePhoto = escapeHtml(question.photo);
     const safeId = escapeHtml(question._id);
     const safeSubject = escapeHtml(question.subject);
-    newHtml += `<div class="teach-card" style="background-image: url(${safePhoto}" data-id="${safeId}" onmousedown="teachMouse(this, event)" onmouseup="teachUp(this, event)"><p>${safeSubject}</p></div>`;
+    newHtml += `<div class="teach-card" style="background-image: url(${safePhoto})" data-id="${safeId}" onmousedown="teachMouse(this, event)" onmouseup="teachUp(this, event)"><p>${safeSubject}</p></div>`;
   }
   teach.innerHTML = newHtml;
 }

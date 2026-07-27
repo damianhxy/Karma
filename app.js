@@ -11,20 +11,22 @@ const auth = require("./middlewares/auth.js");
 require("./controllers/config.js")(app, express);
 
 app.get("/", function (req, res) {
+  const error = req.session.error;
+  delete req.session.error;
   res.render("index", {
     layout: false,
     user: req.user,
-    error: req.session.error,
+    error,
   });
-  delete req.session.error;
 });
 
 app.get("/register", function (req, res) {
+  const error = req.session.error;
+  delete req.session.error;
   res.render("register", {
     layout: false,
-    error: req.session.error,
+    error,
   });
-  delete req.session.error;
 });
 
 app.get("/clear", auth, function (req, res) {

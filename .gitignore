@@ -59,3 +59,10 @@ typings/
 
 # next.js build output
 .next
+
+# Database files
+database/
+nedb_sessionstore
+*.db
+*.db-wal
+*.db-shm

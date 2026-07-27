@@ -1,105 +1,108 @@
-var express = require("express");
-var app = express();
-var server = require("http").Server(app);
-var io = require("socket.io")(server);
-var settings = require("./controllers/settings.js");
+const express = require("express");
+const app = express();
+const server = require("http").Server(app);
+const io = require("socket.io")(server);
+const settings = require("./controllers/settings.js");
 
-var user = require("./models/user.js");
-var question = require("./models/question.js");
+const user = require("./models/user.js");
+const question = require("./models/question.js");
+const auth = require("./middlewares/auth.js");
 
 require("./controllers/config.js")(app, express);
 
-app.get("/", function(req, res) {
-    res.render("index", {
-        layout: false,
-        user: req.user
-    });
+app.get("/", function (req, res) {
+  res.render("index", {
+    layout: false,
+    user: req.user,
+    error: req.session.error,
+  });
+  delete req.session.error;
 });
 
-app.get("/clear", function(req, res) {
-    user.clear()
-    .then(function() {
-        return question.clear();
-    })
-    .then(function() {
-        res.send("Database cleared");
-    });
+app.get("/register", function (req, res) {
+  res.render("register", {
+    layout: false,
+    error: req.session.error,
+  });
+  delete req.session.error;
+});
+
+app.get("/clear", auth, function (req, res) {
+  try {
+    user.clear();
+    question.clear();
+    res.send("Database cleared");
+  } catch (err) {
+    console.error("Failed to clear database:", err);
+    res.status(500).send("Error clearing database");
+  }
 });
 
 app.use("/users", require("./controllers/users.js"));
 
-io.on("connection", function(socket) {
-    console.log("Client connected");
+io.on("connection", function (socket) {
+  console.log("Client connected");
 
-    const id = socket.id;
+  const socketId = socket.id;
 
-    socket.on("init", function(userId) { // Sends user_id
-        user.setSocketID(userId, id)
-        .then(function() {
-            return question.all();
-        })
-        .then(function(questions) {
-            io.emit("populateQuestions", questions);
-        });
-    });
+  socket.on("init", function (userId) {
+    try {
+      user.setSocketID(userId, socketId);
+      const questions = question.all();
+      io.emit("populateQuestions", questions);
+    } catch (err) {
+      console.error("Error on init:", err);
+    }
+  });
 
-    socket.on("disconnect", function() {
-        user.clearSocketID(id);
-    });
-/*
-    socket.on("disconnect", function() {
-        user.setSocketID(userId, "");
-    });
-*/
-    // Questions
-    socket.on("create", function(data) {
-        var id;
-        question.create(data.userid, data.photo, data.subject)
-        .then((ret) => {
-            id = ret._id;
-            return question.all();
-        })
-        .then((questions) => {
-            return {
-                questions,
-                id
-            }
-        })
-        .then(function({questions, id}) {
-            io.emit("created", questions, id);
-        });
-    });
+  socket.on("disconnect", function () {
+    try {
+      user.clearSocketID(socketId);
+    } catch (err) {
+      console.error("Error on disconnect:", err);
+    }
+  });
 
-    socket.on("answer", function(data) {
-        question.accept(data.questionid, data.askee)
-        .then(function() {
-            return question.all();
-        })
-        .then(function(questions) {
-            io.emit("answered", questions);
-        });
-    });
+  socket.on("create", function (data) {
+    try {
+      const created = question.create(data.userid, data.photo, data.subject);
+      const questions = question.all();
+      io.emit("created", questions, created._id);
+    } catch (err) {
+      console.error("Error creating question:", err);
+    }
+  });
 
-    socket.on("message", function(data) {
-        question.addMessage(data.questionid, data.userid, data.message, data.type)
-        .then(function() {
-            return question.all();
-        })
-        .then(function(questions) {
-            io.emit("messaged", questions);
-        });
-    });
+  socket.on("answer", function (data) {
+    try {
+      question.accept(data.questionid, data.askee);
+      const questions = question.all();
+      io.emit("answered", questions);
+    } catch (err) {
+      console.error("Error accepting question:", err);
+    }
+  });
 
-    socket.on("resolve", function(data) {
-        question.resolve(data.questionid, data.success)
-        .then(function() {
-            return question.all();
-        })
-        .then(function(questions) {
-            io.emit("resolved", questions);
-        });
-    });
+  socket.on("message", function (data) {
+    try {
+      question.addMessage(data.questionid, data.userid, data.message, data.type);
+      const questions = question.all();
+      io.emit("messaged", questions);
+    } catch (err) {
+      console.error("Error adding message:", err);
+    }
+  });
+
+  socket.on("resolve", function (data) {
+    try {
+      question.resolve(data.questionid, data.success);
+      const questions = question.all();
+      io.emit("resolved", questions);
+    } catch (err) {
+      console.error("Error resolving question:", err);
+    }
+  });
 });
 
 server.listen(settings.PORT);
-console.info("Listening on port " + settings.PORT + " in " + app.get("env") + " mode.");
+console.info(`Listening on port ${settings.PORT} in ${app.get("env")} mode.`);

@@ -1,0 +1,53 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Karma - Register</title>
+    <link rel="stylesheet" href="style.css" />
+    <meta
+      name="viewport"
+      content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=no"
+    />
+  </head>
+  <body>
+    <div id="login-container" class="container">
+      {{#if error}}
+        <p class="error-message">{{error}}</p>
+      {{/if}}
+      <form action="/users/signup" method="POST">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+        <img src="panda.png" height="200" />
+        <h1>KARMA</h1>
+        <input
+          id="login-name"
+          type="text"
+          placeholder="Name"
+          name="name"
+          minlength="1"
+          maxlength="100"
+          required
+        />
+        <input
+          id="login-username"
+          type="text"
+          placeholder="Username"
+          name="username"
+          minlength="3"
+          maxlength="30"
+          pattern="[a-zA-Z0-9]+"
+          required
+        />
+        <input
+          id="login-password"
+          type="password"
+          placeholder="Password (min 8 chars)"
+          name="password"
+          minlength="8"
+          maxlength="100"
+          required
+        />
+        <input type="submit" value="Sign Up" />
+      </form>
+      <p><a href="/">Back to login</a></p>
+    </div>
+  </body>
+</html>

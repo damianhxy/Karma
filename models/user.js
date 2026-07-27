@@ -1,66 +1,53 @@
-var settings = require("../controllers/settings.js");
+const crypto = require("crypto");
+const settings = require("../controllers/settings.js");
+const bcrypt = require("bcryptjs");
+const db = require("../utils/db");
 
-var Promise = require("bluebird");
-var nedb = require("nedb");
-var bcryptjs = require("bcryptjs");
-var users = new nedb({ filename: "./database/users", autoload: true });
-Promise.promisifyAll(users);
-Promise.promisifyAll(users.find().constructor.prototype);
-
-Promise.promisifyAll(bcryptjs);
-
-exports.add = function(req, username, password) {
-    username = username.trim();
-    return users.findOneAsync({ username: username })
-    .then(function(user) {
-        if (user) throw Error("User already exists");
-        return bcryptjs.hashAsync(password, settings.HASH_ROUNDS)
-        .then(function(hash) {
-            console.log("hashed.");
-            return users.insertAsync({
-                "username": username,
-                "hash": hash,
-                "karma": 0,
-                "name": req.body.name,
-                "subjects": [],
-                "socket_id": ""
-            });
-        });
-    });
-};
-
-exports.authenticate = function(username, password) {
-    return users.findOneAsync({ username: username })
-    .then(function(user) {
-        if (!user) throw Error("User does not exist");
-        return bcryptjs.compareAsync(password, user.hash)
-        .then(function(res) {
-            if (!res) throw Error("Wrong password");
-            return user;
-        });
-    });
-};
-
-exports.get = function(id) {
-    return users.findOneAsync({ _id: id });
-};
-
-exports.setSocketID = function(id, socketid) {
-    return users.findOneAsync({ _id: id })
-    .then(function(user) {
-        user.socket_id = socketid;
-        users.updateAsync({ _id: id }, { $set: user });
-    });
-};
-
-exports.clearSocketID = function(socketid) {
-    return users.findOneAsync({ socket_id: socketid })
-    .then(function(user) {
-        user.socket_id = "";
-        users.updateAsync({ _id: user._id }, { $set: user });
-    });
+function generateId() {
+  return crypto.randomBytes(12).toString("hex");
 }
 
-exports.clear = function() {
-    return users.removeAsync({}, { multi: true });
+const stmts = {
+  insertUser: db.prepare(
+    "INSERT INTO users (_id, username, hash, karma, name, subjects, socket_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+  ),
+  findByUsername: db.prepare("SELECT * FROM users WHERE username = ?"),
+  findById: db.prepare("SELECT * FROM users WHERE _id = ?"),
+  findBySocketId: db.prepare("SELECT * FROM users WHERE socket_id = ?"),
+  updateSocketId: db.prepare("UPDATE users SET socket_id = ? WHERE _id = ?"),
+  clearAll: db.prepare("DELETE FROM users"),
+};
+
+exports.add = function (req, username, password) {
+  username = username.trim();
+  const existing = stmts.findByUsername.get(username);
+  if (existing) throw new Error("User already exists");
+  const hash = bcrypt.hashSync(password, settings.HASH_ROUNDS);
+  const id = generateId();
+  stmts.insertUser.run(id, username, hash, 0, req.body.name || "", "[]", "");
+  return stmts.findById.get(id);
+};
+
+exports.authenticate = function (username, password) {
+  const user = stmts.findByUsername.get(username);
+  if (!user) throw new Error("User does not exist");
+  const match = bcrypt.compareSync(password, user.hash);
+  if (!match) throw new Error("Wrong password");
+  return user;
+};
+
+exports.get = function (id) {
+  return stmts.findById.get(id) || null;
+};
+
+exports.setSocketID = function (id, socketid) {
+  stmts.updateSocketId.run(socketid, id);
+};
+
+exports.clearSocketID = function (socketid) {
+  stmts.updateSocketId.run("", socketid);
+};
+
+exports.clear = function () {
+  stmts.clearAll.run();
 };

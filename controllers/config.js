@@ -63,25 +63,24 @@ module.exports = function (app, express) {
   app.use(morgan("[:time] :method :url :status :response-time ms"));
   app.use(cookieParser(settings.SECRET));
   app.use(express.urlencoded({ extended: false }));
-  app.use(
-    session({
-      secret: settings.SECRET,
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
+  const sessionMiddleware = session({
+    secret: settings.SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    },
+    store: new SQLiteStore({
+      client: db,
+      expired: {
+        clear: true,
+        intervalMs: 900000,
       },
-      store: new SQLiteStore({
-        client: db,
-        expired: {
-          clear: true,
-          intervalMs: 900000,
-        },
-      }),
     }),
-  );
+  });
+  app.use(sessionMiddleware);
 
   // Rate limit auth routes (must come before CSRF)
   app.use("/users/signin", authLimiter);
@@ -147,4 +146,6 @@ module.exports = function (app, express) {
   const hbs = exphbs.create({ defaultLayout: "default" });
   app.engine("handlebars", hbs.engine);
   app.set("view engine", "handlebars");
+
+  return { sessionMiddleware };
 };

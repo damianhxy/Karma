@@ -7,7 +7,7 @@ const settings = require("./controllers/settings.js");
 const user = require("./models/user.js");
 const question = require("./models/question.js");
 
-require("./controllers/config.js")(app, express);
+const { sessionMiddleware } = require("./controllers/config.js")(app, express);
 
 app.get("/", function (req, res) {
   const error = req.session.error;
@@ -43,32 +43,23 @@ app.use(function (err, req, res, next) {
   res.status(500).send("Internal server error.");
 });
 
+io.engine.use(sessionMiddleware);
+io.use(function (socket, next) {
+  const userId = socket.request.session?.passport?.user;
+  if (!userId || !user.get(userId)) return next(new Error("Unauthorized"));
+  socket.data.userId = userId;
+  next();
+});
+
 io.on("connection", function (socket) {
-  console.log("Client connected");
-
-  const socketId = socket.id;
-
-  socket.on("init", function (userId) {
-    try {
-      user.setSocketID(userId, socketId);
-      const questions = question.all();
-      io.emit("populateQuestions", questions);
-    } catch (err) {
-      console.error("Error on init:", err);
-    }
-  });
-
-  socket.on("disconnect", function () {
-    try {
-      user.clearSocketID(socketId);
-    } catch (err) {
-      console.error("Error on disconnect:", err);
-    }
-  });
+  const userId = socket.data.userId;
+  const userRoom = `user:${userId}`;
+  socket.join(userRoom);
+  socket.emit("populateQuestions", question.all());
 
   socket.on("create", function (data) {
     try {
-      const created = question.create(data.userid, data.photo, data.subject);
+      const created = question.create(userId, data.photo, data.subject);
       const questions = question.all();
       io.emit("created", questions, created._id);
     } catch (err) {
@@ -78,7 +69,7 @@ io.on("connection", function (socket) {
 
   socket.on("answer", function (data) {
     try {
-      question.accept(data.questionid, data.askee);
+      question.accept(data.questionid, userId);
       const questions = question.all();
       io.emit("answered", questions);
     } catch (err) {
@@ -88,7 +79,7 @@ io.on("connection", function (socket) {
 
   socket.on("message", function (data) {
     try {
-      question.addMessage(data.questionid, data.userid, data.message, data.type);
+      question.addMessage(data.questionid, userId, data.message, data.type);
       const questions = question.all();
       io.emit("messaged", questions);
     } catch (err) {

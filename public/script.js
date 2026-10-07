@@ -43,8 +43,6 @@ let curQuestionId = -1;
 
 const teach = document.getElementById("teach-container");
 
-socket.emit("init", curUserId);
-
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 edit.style.display =

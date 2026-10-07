@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const server = require("http").Server(app);
-const io = require("socket.io")(server);
+const io = require("socket.io")(server, { maxHttpBufferSize: 2_000_000 });
 const settings = require("./controllers/settings.js");
 
 const user = require("./models/user.js");
@@ -51,51 +51,80 @@ io.use(function (socket, next) {
   next();
 });
 
+function validId(value) {
+  return (
+    typeof value === "string" && (/^[a-f0-9]{24}$/.test(value) || /^[A-Za-z0-9]{16}$/.test(value))
+  );
+}
+
+function validSubject(value) {
+  return typeof value === "string" && value.trim().length > 0 && value.trim().length <= 50;
+}
+
+function validPhoto(value) {
+  return (
+    typeof value === "string" &&
+    value.length <= 1_900_000 &&
+    /^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/.test(value)
+  );
+}
+
+function onEvent(socket, event, handler) {
+  socket.on(event, function (data) {
+    try {
+      handler(data);
+    } catch (err) {
+      console.error(`Socket ${event} failed:`, err.message);
+      socket.emit("operationError", { event, message: "Invalid request" });
+    }
+  });
+}
+
 io.on("connection", function (socket) {
   const userId = socket.data.userId;
   const userRoom = `user:${userId}`;
   socket.join(userRoom);
   socket.emit("populateQuestions", question.pending());
 
-  socket.on("create", function (data) {
-    try {
-      const created = question.create(userId, data.photo, data.subject);
-      socket.join(`question:${created._id}`);
-      io.emit("created", question.pending(), created._id);
-    } catch (err) {
-      console.error("Error creating question:", err);
+  onEvent(socket, "create", function (data) {
+    if (!data || !validPhoto(data.photo) || !validSubject(data.subject)) {
+      throw new Error("Invalid question");
     }
+    const created = question.create(userId, data.photo, data.subject.trim());
+    socket.join(`question:${created._id}`);
+    io.emit("created", question.pending(), created._id);
   });
 
-  socket.on("answer", function (data) {
-    try {
-      const accepted = question.accept(data.questionid, userId);
-      const room = `question:${accepted._id}`;
-      socket.join(room);
-      io.in(`user:${accepted.asker}`).socketsJoin(room);
-      io.to(room).emit("answered", [accepted]);
-      io.emit("populateQuestions", question.pending());
-    } catch (err) {
-      console.error("Error accepting question:", err);
-    }
+  onEvent(socket, "answer", function (data) {
+    if (!data || !validId(data.questionid)) throw new Error("Invalid question ID");
+    const accepted = question.accept(data.questionid, userId);
+    const room = `question:${accepted._id}`;
+    socket.join(room);
+    io.in(`user:${accepted.asker}`).socketsJoin(room);
+    io.to(room).emit("answered", [accepted]);
+    io.emit("populateQuestions", question.pending());
   });
 
-  socket.on("message", function (data) {
-    try {
-      const updated = question.addMessage(data.questionid, userId, data.message);
-      io.to(`question:${updated._id}`).emit("messaged", [updated]);
-    } catch (err) {
-      console.error("Error adding message:", err);
+  onEvent(socket, "message", function (data) {
+    if (
+      !data ||
+      !validId(data.questionid) ||
+      typeof data.message !== "string" ||
+      data.message.trim().length === 0 ||
+      data.message.length > 500
+    ) {
+      throw new Error("Invalid message");
     }
+    const updated = question.addMessage(data.questionid, userId, data.message.trim());
+    io.to(`question:${updated._id}`).emit("messaged", [updated]);
   });
 
-  socket.on("resolve", function (data) {
-    try {
-      const updated = question.resolve(data.questionid, userId, data.success);
-      io.to(`question:${updated._id}`).emit("resolved", [updated]);
-    } catch (err) {
-      console.error("Error resolving question:", err);
+  onEvent(socket, "resolve", function (data) {
+    if (!data || !validId(data.questionid) || typeof data.success !== "boolean") {
+      throw new Error("Invalid resolution");
     }
+    const updated = question.resolve(data.questionid, userId, data.success);
+    io.to(`question:${updated._id}`).emit("resolved", [updated]);
   });
 });
 

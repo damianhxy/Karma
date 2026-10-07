@@ -55,13 +55,13 @@ io.on("connection", function (socket) {
   const userId = socket.data.userId;
   const userRoom = `user:${userId}`;
   socket.join(userRoom);
-  socket.emit("populateQuestions", question.all());
+  socket.emit("populateQuestions", question.pending());
 
   socket.on("create", function (data) {
     try {
       const created = question.create(userId, data.photo, data.subject);
-      const questions = question.all();
-      io.emit("created", questions, created._id);
+      socket.join(`question:${created._id}`);
+      io.emit("created", question.pending(), created._id);
     } catch (err) {
       console.error("Error creating question:", err);
     }
@@ -69,9 +69,12 @@ io.on("connection", function (socket) {
 
   socket.on("answer", function (data) {
     try {
-      question.accept(data.questionid, userId);
-      const questions = question.all();
-      io.emit("answered", questions);
+      const accepted = question.accept(data.questionid, userId);
+      const room = `question:${accepted._id}`;
+      socket.join(room);
+      io.in(`user:${accepted.asker}`).socketsJoin(room);
+      io.to(room).emit("answered", [accepted]);
+      io.emit("populateQuestions", question.pending());
     } catch (err) {
       console.error("Error accepting question:", err);
     }
@@ -79,9 +82,8 @@ io.on("connection", function (socket) {
 
   socket.on("message", function (data) {
     try {
-      question.addMessage(data.questionid, userId, data.message);
-      const questions = question.all();
-      io.emit("messaged", questions);
+      const updated = question.addMessage(data.questionid, userId, data.message);
+      io.to(`question:${updated._id}`).emit("messaged", [updated]);
     } catch (err) {
       console.error("Error adding message:", err);
     }
@@ -89,9 +91,8 @@ io.on("connection", function (socket) {
 
   socket.on("resolve", function (data) {
     try {
-      question.resolve(data.questionid, userId, data.success);
-      const questions = question.all();
-      io.emit("resolved", questions);
+      const updated = question.resolve(data.questionid, userId, data.success);
+      io.to(`question:${updated._id}`).emit("resolved", [updated]);
     } catch (err) {
       console.error("Error resolving question:", err);
     }

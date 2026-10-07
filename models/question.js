@@ -10,7 +10,9 @@ const stmts = {
     "INSERT INTO questions (_id, asker, askee, photo, messages, state, subject, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
   ),
   findById: db.prepare("SELECT * FROM questions WHERE _id = ?"),
-  findAll: db.prepare("SELECT * FROM questions ORDER BY time DESC"),
+  findPending: db.prepare(
+    "SELECT _id, asker, photo, subject, time FROM questions WHERE state = 'pending' ORDER BY time DESC",
+  ),
   acceptPending: db.prepare(
     "UPDATE questions SET askee = ?, state = 'open' WHERE _id = ? AND state = 'pending' AND asker != ?",
   ),
@@ -37,12 +39,8 @@ exports.accept = function (questionid, askee) {
   return hydrate(stmts.findById.get(questionid));
 };
 
-exports.all = function () {
-  const rows = stmts.findAll.all();
-  return rows.map(function (row) {
-    row.messages = JSON.parse(row.messages || "[]");
-    return row;
-  });
+exports.pending = function () {
+  return stmts.findPending.all();
 };
 
 exports.get = function (questionid) {

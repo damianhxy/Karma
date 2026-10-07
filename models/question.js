@@ -19,6 +19,9 @@ const stmts = {
   acceptPending: db.prepare(
     "UPDATE questions SET askee = ?, state = 'open' WHERE _id = ? AND state = 'pending' AND asker != ?",
   ),
+  findOpenFor: db.prepare(
+    "SELECT _id FROM questions WHERE state = 'open' AND (asker = ? OR askee = ?)",
+  ),
   updateMessages: db.prepare("UPDATE questions SET messages = ? WHERE _id = ?"),
   resolveOpen: db.prepare(
     "UPDATE questions SET state = ? WHERE _id = ? AND state = 'open' AND asker = ?",
@@ -48,6 +51,10 @@ exports.pending = function () {
 
 exports.related = function (subject) {
   return stmts.findRelated.all(subject);
+};
+
+exports.openFor = function (userid) {
+  return stmts.findOpenFor.all(userid, userid).map((row) => row._id);
 };
 
 exports.get = function (questionid) {

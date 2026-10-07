@@ -85,6 +85,9 @@ io.on("connection", function (socket) {
   const userId = socket.data.userId;
   const userRoom = `user:${userId}`;
   socket.join(userRoom);
+  // Rooms belong to a socket, so a reconnecting participant must rejoin
+  // the sessions it is still part of.
+  socket.join(question.openFor(userId).map((id) => `question:${id}`));
   socket.emit("populateQuestions", question.pending());
 
   onEvent(socket, "getRelatedQuestions", function (subject) {

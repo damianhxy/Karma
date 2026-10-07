@@ -1,6 +1,12 @@
 require("dotenv").config();
 
-if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
+const placeholderSecret = "replace-with-a-random-string-min-32-chars";
+
+if (
+  !process.env.SESSION_SECRET ||
+  process.env.SESSION_SECRET.length < 32 ||
+  process.env.SESSION_SECRET === placeholderSecret
+) {
   console.error("FATAL: SESSION_SECRET must be set in .env (min 32 chars)");
   process.exit(1);
 }

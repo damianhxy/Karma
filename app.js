@@ -8,6 +8,7 @@ const user = require("./models/user.js");
 const question = require("./models/question.js");
 
 const { sessionMiddleware } = require("./controllers/config.js")(app, express);
+app.set("io", io);
 
 app.get("/", function (req, res) {
   const error = req.session.error;

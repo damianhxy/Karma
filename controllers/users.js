@@ -55,10 +55,16 @@ router.post("/signup", signupValidation, function (req, res, next) {
   })(req, res, next);
 });
 
-router.get("/signout", auth, function (req, res, next) {
+router.post("/signout", auth, function (req, res, next) {
+  const userId = req.user._id;
   req.logout(function (err) {
     if (err) return next(err);
-    res.redirect("/");
+    req.session.destroy(function (destroyErr) {
+      if (destroyErr) return next(destroyErr);
+      req.app.get("io").in(`user:${userId}`).disconnectSockets(true);
+      res.clearCookie("connect.sid");
+      res.redirect("/");
+    });
   });
 });
 

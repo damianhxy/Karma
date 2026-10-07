@@ -79,6 +79,16 @@ function validateMessage(message, questionId) {
   };
 }
 
+// Same rule the realtime server applies to new questions: the browser
+// interpolates photos into style attributes.
+function validatePhoto(value, questionId) {
+  const photo = boundedString(value, `photo for question ${questionId}`, 1_900_000);
+  if (!/^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/.test(photo)) {
+    throw new Error(`Invalid photo for question ${questionId}`);
+  }
+  return photo;
+}
+
 function validateQuestion(record) {
   if (!Array.isArray(record.messages)) throw new Error(`Invalid messages for ${record._id}`);
   if (!["pending", "open", "success", "failure"].includes(record.state)) {
@@ -95,7 +105,7 @@ function validateQuestion(record) {
     askee: boundedString(record.askee || "-1", `askee for question ${record._id}`, 100, {
       allowEmpty: false,
     }),
-    photo: boundedString(record.photo || "", `photo for question ${record._id}`, 2_000_000),
+    photo: validatePhoto(record.photo, record._id),
     messages: record.messages.map((message) => validateMessage(message, record._id)),
     state: record.state,
     subject: boundedString(record.subject || "", `subject for question ${record._id}`, 50),

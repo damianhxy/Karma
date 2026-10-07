@@ -43,8 +43,6 @@ let curQuestionId = -1;
 
 const teach = document.getElementById("teach-container");
 
-socket.emit("init", curUserId);
-
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 edit.style.display =
@@ -150,7 +148,7 @@ window.teachUp = function (something, event) {
         updateMessages(question);
       });
 
-      socket.on("resolve", (questions) => {
+      socket.on("resolved", (questions) => {
         const question = questions.find((q) => q._id === curQuestionId);
         if (question !== undefined && question.state !== "success" && question.state !== "failure")
           return;
@@ -159,7 +157,7 @@ window.teachUp = function (something, event) {
         chat.style.zIndex = "-1";
 
         socket.off("messaged");
-        socket.off("resolve");
+        socket.off("resolved");
       });
     });
   }
@@ -276,7 +274,7 @@ loadingSend.addEventListener("click", function () {
         updateMessages(question);
       });
 
-      socket.on("resolve", (questions) => {
+      socket.on("resolved", (questions) => {
         const question = questions.find((q) => q._id === curQuestionId);
         if (question !== undefined && question.state !== "success" && question.state !== "failure")
           return;
@@ -285,7 +283,7 @@ loadingSend.addEventListener("click", function () {
         chat.style.zIndex = "-1";
 
         socket.off("messaged");
-        socket.off("resolve");
+        socket.off("resolved");
       });
     });
   } else {
@@ -315,6 +313,7 @@ chatExit.addEventListener("click", () => {
 });
 
 fivestar.addEventListener("click", () => {
+  socket.emit("resolve", { questionid: curQuestionId, success: true });
   rating.style.display = "none";
   rating.style.zIndex = "-1";
   overall.style.display = "block";

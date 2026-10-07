@@ -121,6 +121,10 @@
           <div id="profile-picture" style="background: url(Emile_Berliner.jpg)"></div>
           <p id="profile-name">{{user.name}}</p>
           <p id="profile-karma">{{user.karma}} Karma</p>
+          <form action="/users/signout" method="POST">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+            <button type="submit">Sign out</button>
+          </form>
         </div>
       </div>
       <script src="scroller/Animate.js"></script>

@@ -26,10 +26,7 @@ const authLimiter = rateLimit({
 const { csrfSynchronisedProtection, generateToken } = csrfSync({
   getTokenFromRequest: (req) => {
     return (
-      (req.body && req.body._csrf) ||
-      (req.query && req.query._csrf) ||
-      req.headers["x-csrftoken"] ||
-      req.headers["x-csrf-token"]
+      (req.body && req.body._csrf) || req.headers["x-csrftoken"] || req.headers["x-csrf-token"]
     );
   },
 });

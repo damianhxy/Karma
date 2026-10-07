@@ -42,6 +42,19 @@ app.get("/clear", auth, function (req, res) {
 
 app.use("/users", require("./controllers/users.js"));
 
+app.use(function (req, res) {
+  res.status(404).send("Not found");
+});
+
+app.use(function (err, req, res, next) {
+  if (res.headersSent) return next(err);
+  if (err && err.code === "EBADCSRFTOKEN") {
+    return res.status(403).send("Invalid CSRF token.");
+  }
+  console.error("Request failed:", err);
+  res.status(500).send("Internal server error.");
+});
+
 io.on("connection", function (socket) {
   console.log("Client connected");
 

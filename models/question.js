@@ -11,7 +11,19 @@ const stmts = {
   ),
   findById: db.prepare("SELECT * FROM questions WHERE _id = ?"),
   findAll: db.prepare("SELECT * FROM questions ORDER BY time DESC"),
+  acceptPending: db.prepare(
+    "UPDATE questions SET askee = ?, state = 'open' WHERE _id = ? AND state = 'pending' AND asker != ?",
+  ),
+  updateMessages: db.prepare("UPDATE questions SET messages = ? WHERE _id = ?"),
+  resolveOpen: db.prepare(
+    "UPDATE questions SET state = ? WHERE _id = ? AND state = 'open' AND asker = ?",
+  ),
 };
+
+function hydrate(row) {
+  if (!row) return null;
+  return { ...row, messages: JSON.parse(row.messages || "[]") };
+}
 
 exports.create = function (asker, photo, subject) {
   const id = generateId();
@@ -20,9 +32,9 @@ exports.create = function (asker, photo, subject) {
 };
 
 exports.accept = function (questionid, askee) {
-  const question = stmts.findById.get(questionid);
-  if (!question) throw new Error("Question not found");
-  db.prepare("UPDATE questions SET askee = ?, state = 'open' WHERE _id = ?").run(askee, questionid);
+  const result = stmts.acceptPending.run(askee, questionid, askee);
+  if (result.changes !== 1) throw new Error("Question is not available");
+  return hydrate(stmts.findById.get(questionid));
 };
 
 exports.all = function () {
@@ -33,22 +45,26 @@ exports.all = function () {
   });
 };
 
-exports.resolve = function (questionid, success) {
-  const question = stmts.findById.get(questionid);
-  if (!question) throw new Error("Question not found");
-  db.prepare("UPDATE questions SET state = ? WHERE _id = ?").run(
-    success ? "success" : "failure",
-    questionid,
-  );
+exports.get = function (questionid) {
+  return hydrate(stmts.findById.get(questionid));
 };
 
-exports.addMessage = function (questionid, userid, message, type) {
-  const question = stmts.findById.get(questionid);
-  if (!question) throw new Error("Question not found");
-  const messages = JSON.parse(question.messages || "[]");
-  messages.push({ userid, message, type });
-  db.prepare("UPDATE questions SET messages = ? WHERE _id = ?").run(
-    JSON.stringify(messages),
-    questionid,
-  );
+exports.resolve = function (questionid, userid, success) {
+  const result = stmts.resolveOpen.run(success ? "success" : "failure", questionid, userid);
+  if (result.changes !== 1) throw new Error("Question cannot be resolved");
+  return hydrate(stmts.findById.get(questionid));
+};
+
+exports.addMessage = function (questionid, userid, message) {
+  const update = db.transaction(function () {
+    const current = hydrate(stmts.findById.get(questionid));
+    if (!current || current.state !== "open") throw new Error("Question is not open");
+    if (current.asker !== userid && current.askee !== userid) {
+      throw new Error("Not a question participant");
+    }
+    current.messages.push({ userid, message });
+    stmts.updateMessages.run(JSON.stringify(current.messages), questionid);
+    return current;
+  });
+  return update();
 };

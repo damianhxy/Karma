@@ -79,7 +79,7 @@ io.on("connection", function (socket) {
 
   socket.on("message", function (data) {
     try {
-      question.addMessage(data.questionid, userId, data.message, data.type);
+      question.addMessage(data.questionid, userId, data.message);
       const questions = question.all();
       io.emit("messaged", questions);
     } catch (err) {
@@ -89,7 +89,7 @@ io.on("connection", function (socket) {
 
   socket.on("resolve", function (data) {
     try {
-      question.resolve(data.questionid, data.success);
+      question.resolve(data.questionid, userId, data.success);
       const questions = question.all();
       io.emit("resolved", questions);
     } catch (err) {

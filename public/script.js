@@ -1,10 +1,14 @@
 /* global io, curUserId */
 const socket = io();
 
+// Also escapes quotes: results are interpolated into attribute values.
 function escapeHtml(str) {
-  const div = document.createElement("div");
-  div.appendChild(document.createTextNode(str));
-  return div.innerHTML;
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 const overall = document.getElementById("overall-container");

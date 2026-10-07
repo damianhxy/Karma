@@ -86,6 +86,11 @@ io.on("connection", function (socket) {
   socket.join(userRoom);
   socket.emit("populateQuestions", question.pending());
 
+  onEvent(socket, "getRelatedQuestions", function (subject) {
+    if (!validSubject(subject)) throw new Error("Invalid subject");
+    socket.emit("relatedQuestions", question.related(subject.trim()));
+  });
+
   onEvent(socket, "create", function (data) {
     if (!data || !validPhoto(data.photo) || !validSubject(data.subject)) {
       throw new Error("Invalid question");

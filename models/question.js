@@ -13,6 +13,9 @@ const stmts = {
   findPending: db.prepare(
     "SELECT _id, asker, photo, subject, time FROM questions WHERE state = 'pending' ORDER BY time DESC",
   ),
+  findRelated: db.prepare(
+    "SELECT _id, asker, photo, subject, time FROM questions WHERE state = 'pending' AND subject = ? ORDER BY time DESC LIMIT 20",
+  ),
   acceptPending: db.prepare(
     "UPDATE questions SET askee = ?, state = 'open' WHERE _id = ? AND state = 'pending' AND asker != ?",
   ),
@@ -41,6 +44,10 @@ exports.accept = function (questionid, askee) {
 
 exports.pending = function () {
   return stmts.findPending.all();
+};
+
+exports.related = function (subject) {
+  return stmts.findRelated.all(subject);
 };
 
 exports.get = function (questionid) {

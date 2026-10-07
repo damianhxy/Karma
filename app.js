@@ -6,7 +6,6 @@ const settings = require("./controllers/settings.js");
 
 const user = require("./models/user.js");
 const question = require("./models/question.js");
-const auth = require("./middlewares/auth.js");
 
 require("./controllers/config.js")(app, express);
 
@@ -27,17 +26,6 @@ app.get("/register", function (req, res) {
     layout: false,
     error,
   });
-});
-
-app.get("/clear", auth, function (req, res) {
-  try {
-    user.clear();
-    question.clear();
-    res.send("Database cleared");
-  } catch (err) {
-    console.error("Failed to clear database:", err);
-    res.status(500).send("Error clearing database");
-  }
 });
 
 app.use("/users", require("./controllers/users.js"));

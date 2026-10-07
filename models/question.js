@@ -11,7 +11,6 @@ const stmts = {
   ),
   findById: db.prepare("SELECT * FROM questions WHERE _id = ?"),
   findAll: db.prepare("SELECT * FROM questions ORDER BY time DESC"),
-  deleteAll: db.prepare("DELETE FROM questions"),
 };
 
 exports.create = function (asker, photo, subject) {
@@ -52,8 +51,4 @@ exports.addMessage = function (questionid, userid, message, type) {
     JSON.stringify(messages),
     questionid,
   );
-};
-
-exports.clear = function () {
-  stmts.deleteAll.run();
 };

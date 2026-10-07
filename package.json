@@ -36,6 +36,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "node --watch app.js",
+    "migrate": "node migrate.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",

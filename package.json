@@ -31,7 +31,8 @@
     "@eslint/js": "^10.0.1",
     "eslint": "^10.8.0",
     "globals": "^15.14.0",
-    "prettier": "^3.9.6"
+    "prettier": "^3.9.6",
+    "socket.io-client": "^4.8.3"
   },
   "scripts": {
     "start": "node app.js",
@@ -39,7 +40,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test": "node --test \"test/**/*.test.js\""
   },
   "repository": {
     "type": "git",
